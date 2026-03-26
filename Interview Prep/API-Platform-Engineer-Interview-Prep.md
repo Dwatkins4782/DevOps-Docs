@@ -22,6 +22,7 @@
 - [Agile & Team Collaboration](#agile--team-collaboration)
 - [Scenario-Based Questions](#scenario-based-questions)
 - [Job Requirements Mapping (Behavioral & Soft Skills)](#job-requirements-mapping-behavioral--soft-skills)
+- [Project Challenges, Solutions & Recognition (STAR Stories)](#project-challenges-solutions--recognition-star-stories)
 - [My Experience Talking Points](#my-experience-talking-points)
 
 ---
@@ -1133,6 +1134,187 @@ This section maps directly to the non-technical job requirements. Prepare a STAR
 
 **How to answer:**
 > "I've worked in fully remote, distributed teams for most of my career. At Navy Federal and Fineos, I collaborated daily with developers, testers, BAs, and scrum masters across multiple time zones. I keep my camera on, I'm responsive on Slack, and I always follow up meetings with Confluence notes so the whole team has a record. When a developer hits a pipeline issue, I pair with them to troubleshoot — I don't just hand them a ticket number."
+
+---
+
+## Project Challenges, Solutions & Recognition (STAR Stories)
+
+Interviewers frequently ask: *"Tell me about a time you encountered an issue on a project and came up with a solution"* and *"Describe a difficult situation you dealt with."* These are your go-to stories.
+
+---
+
+### Story 1: AKS Cluster Meltdown During Peak Traffic (Navy Federal)
+
+**Situation:** During a peak-traffic period at Navy Federal, our production AKS cluster experienced cascading pod failures. Multiple microservices went down simultaneously — error rates spiked to 40%, and the API gateway (Kong) started returning 503s across all service endpoints. This was impacting thousands of users and internal developers. Leadership was escalating every 15 minutes.
+
+**Task:** As the Senior DevOps/Platform Engineer who built the AKS platform, I was the primary responder responsible for diagnosing the root cause, restoring services, and preventing recurrence.
+
+**Action:**
+1. Ran `kubectl get nodes` and found 3 of 8 worker nodes in `NotReady` status — they had hit memory exhaustion
+2. Checked `kubectl describe node` and discovered a memory leak in a newly deployed microservice was consuming 3x expected resources, triggering OOMKills that cascaded to co-located pods
+3. Immediately cordoned the affected nodes and drained pods to healthy nodes: `kubectl cordon` + `kubectl drain`
+4. Identified the offending deployment via `kubectl top pods` — rolled it back with `helm rollback` to the previous stable version
+5. Manually scaled the node pool to add 2 additional nodes to restore capacity
+6. Once traffic normalized, root-caused the memory leak to a connection pool not releasing database connections — worked with the dev team to patch it
+
+**Result:**
+- Services restored in **23 minutes** (SLA target was 30)
+- Implemented **resource quotas and LimitRanges** per namespace to prevent any single service from starving the cluster
+- Built a **Grafana alerting dashboard** that triggers when any pod exceeds 80% of its memory limit for 5+ minutes — catching issues before they cascade
+- **Recognized by engineering leadership** in the quarterly all-hands for rapid incident response and the preventive measures I implemented
+- Wrote a Confluence runbook that became the team standard for AKS incident response
+
+---
+
+### Story 2: Build Agent Crisis — Thousands of Developers Blocked (Navy Federal)
+
+**Situation:** At Navy Federal, our on-prem build agents supporting thousands of developers and production Azure DevOps pipelines started failing intermittently. Build queues backed up to 200+ jobs, developers couldn't merge PRs, and production deployments were stalled. This happened on a Wednesday — the highest-traffic build day of the sprint.
+
+**Task:** I owned the build agent infrastructure and was responsible for diagnosing why agents were failing and restoring CI/CD operations for the entire engineering organization.
+
+**Action:**
+1. Checked agent health dashboards — 60% of agents were offline or in a degraded state
+2. SSH'd into agents and found disk space was exhausted from accumulated Docker image layers and workspace artifacts that weren't being cleaned up
+3. Wrote an emergency Bash cleanup script and deployed it across all agents via ADO pipeline, freeing 40%+ disk space
+4. Restarted agent services and brought the fleet back online within 45 minutes
+5. For the long-term fix, I **designed and built ephemeral VMSS-based build agents** that spin up fresh for each build and destroy after — eliminating the disk accumulation problem entirely
+6. Built agent configuration and monitoring automation using ADO YAML pipelines, PowerShell, Bash, and Python scripting
+7. Created Prometheus alerts for disk usage, agent health, and queue depth
+
+**Result:**
+- Immediate: Build queues cleared within 2 hours, all developers unblocked
+- Long-term: Ephemeral VMSS agents **reduced build queue time by 50%** and eliminated disk-related failures permanently
+- **Recognized by the VP of Engineering** for turning a crisis into a platform improvement
+- The VMSS agent approach was adopted as the org-wide standard, replacing all legacy static agents
+
+---
+
+### Story 3: HIPAA Compliance Audit Threat (Fineos)
+
+**Situation:** At Fineos (healthcare insurance platform), we were notified of an upcoming HIPAA compliance audit with only 3 weeks' notice. Our CI/CD pipelines had security gaps — secrets were being passed as pipeline variables (not encrypted at rest), container images weren't being scanned consistently, and we lacked audit evidence showing who deployed what, when, and with what approvals.
+
+**Task:** As the DevOps/Platform Engineer, I was tasked with closing the compliance gaps and producing auditable evidence across all deployment pipelines before the audit date.
+
+**Action:**
+1. **Secrets remediation**: Deployed External Secrets Operator to sync secrets from AWS Secrets Manager and HashiCorp Vault into Kubernetes — replaced all pipeline variable secrets within 1 week
+2. **Container security**: Integrated Prisma Cloud scanning into every pipeline with a hard gate — no High/Critical CVEs could be promoted to production
+3. **Audit trail**: Built automated audit logging that captured every deployment: who triggered it, what commit, what image hash, what approvals were obtained, and the security scan results
+4. **Policy enforcement**: Deployed OPA Gatekeeper policies on OpenShift enforcing pod security, approved registries, and resource limits
+5. **Documentation**: Auto-generated HIPAA compliance documentation from CI/CD telemetry using a Python script that pulled pipeline data and formatted it into auditor-friendly reports
+
+**Result:**
+- Passed the HIPAA audit with **zero findings** — auditors specifically praised the automated audit trail
+- Reduced audit prep time by **70%** with the auto-generated compliance reports
+- The OPA + ESO + scan pipeline became the standard security baseline for all Fineos projects
+- **Recognized by the CISO** for turning a compliance risk into a reusable security framework
+
+---
+
+### Story 4: Failed Production Deployment — Friday Night Rollback (Bank of America)
+
+**Situation:** At Bank of America, a production deployment of a critical financial API on OpenShift failed during a Friday evening release window. The new version passed all staging tests but caused intermittent 500 errors in production due to a database connection pool configuration mismatch between staging and production (production had 3x the traffic, and the connection pool maxed out immediately).
+
+**Task:** As the Senior DevOps Engineer, I was on the release call and responsible for deciding whether to fix-forward or rollback, then executing the decision under a strict change window.
+
+**Action:**
+1. Identified the issue within 10 minutes by checking JBoss datasource metrics — `WaitCount` was spiking, meaning threads were waiting for DB connections
+2. Assessed the options: fix-forward (increase pool size in production config) vs rollback
+3. **Decided to rollback** — even though the fix seemed simple, our change control process required a tested and approved configuration change, and modifying production config outside the approved change ticket was a compliance violation (PCI-DSS)
+4. Executed rollback using OpenShift: `oc rollout undo dc/payment-api` — previous version restored in under 5 minutes
+5. Verified services were healthy via monitoring dashboards and ran smoke tests
+6. On Monday, submitted a proper change ticket with the connection pool fix, tested in staging with production-level load simulation, and deployed successfully the following Tuesday
+
+**Result:**
+- Production was stable within **15 minutes** of detecting the issue
+- Zero data loss, zero compliance violations
+- Implemented a **mandatory load testing gate** in the pipeline that simulates production-level traffic against staging before any production deployment
+- Created environment-specific JBoss configuration templates managed by Helm values per environment — eliminating config drift between staging and prod
+- **Recognized by the Release Manager** for making the right call under pressure (rollback vs risky fix-forward) and for the preventive measures
+
+---
+
+### Story 5: Cross-Team Conflict Over Deployment Strategy (Fineos)
+
+**Situation:** At Fineos, I was introducing ArgoCD for GitOps-based deployments on OpenShift. The senior development lead strongly opposed it — he wanted to keep the existing manual deployment process where developers SSH'd into servers and ran scripts. He argued ArgoCD was "unnecessary complexity" and publicly pushed back in sprint meetings. The team was split, and progress stalled for 2 sprints.
+
+**Task:** I needed to resolve the disagreement, get buy-in, and move the project forward without damaging the working relationship or team morale.
+
+**Action:**
+1. **Listened first**: Scheduled a 1-on-1 with the dev lead to understand his concerns — he was worried about losing visibility into what was being deployed and feared that automated deployments would make debugging harder
+2. **Addressed concerns directly**: Built a demo showing ArgoCD's deployment dashboard with real-time sync status, diff views showing exactly what changed, and rollback capabilities — all the visibility he was worried about losing
+3. **Compromised**: Proposed a phased approach — start with one non-critical service on ArgoCD while keeping the existing process for critical services. If it proved value in 2 sprints, expand
+4. **Provided data**: After the pilot, showed metrics — deployment time dropped from 45 minutes (manual) to 3 minutes (ArgoCD), drift incidents dropped to zero, and the dev team could see deployment status without asking DevOps
+
+**Result:**
+- The dev lead became ArgoCD's biggest advocate and asked to migrate all services
+- Full ArgoCD adoption across all teams within 2 months
+- Deployment consistency improved by **70%** and manual deployment errors were eliminated
+- **The dev lead publicly thanked me** in a retrospective for handling the disagreement professionally and proving value with data instead of argument
+- Strengthened my relationship with the development team — they started proactively requesting DevOps improvements
+
+---
+
+### Story 6: Difficult Stakeholder — Unrealistic Timelines (Navy Federal)
+
+**Situation:** At Navy Federal, a project manager demanded that the VMSS agent migration, AKS cluster upgrade, AND ArgoCD implementation all be completed in a single 2-week sprint. The engineering director backed the PM's timeline without consulting the DevOps team. Each of these was a 4-6 week initiative with dependencies between them.
+
+**Task:** I needed to push back on an unrealistic timeline without being seen as obstructive, while still demonstrating urgency and commitment.
+
+**Action:**
+1. **Prepared data**: Created a Jira breakdown showing each initiative's tasks, dependencies, and realistic time estimates. Showed that the AKS upgrade was a prerequisite for ArgoCD (needed the new K8s version), and VMSS migration could run in parallel
+2. **Proposed an alternative**: Presented a 6-week phased plan:
+   - Weeks 1-2: VMSS agent migration (parallel) + AKS upgrade prep
+   - Weeks 3-4: AKS cluster upgrade (rolling, zero-downtime)
+   - Weeks 5-6: ArgoCD implementation (depends on upgraded cluster)
+3. **Showed the risk**: Explained that rushing the AKS upgrade without proper testing could cause a production outage affecting thousands of developers, which would cost more time than the 4 extra weeks
+4. **Offered a quick win**: Delivered the VMSS agent migration in week 1 (it was closest to ready) to show immediate progress and build trust
+
+**Result:**
+- The PM and director accepted the 6-week plan after seeing the dependency map and risk analysis
+- Delivered VMSS migration early (week 1), building confidence in the timeline
+- All three initiatives completed on schedule with zero production incidents
+- **The PM started including me in planning meetings** going forward to get realistic estimates before committing to timelines
+- Lesson: Always come with data and an alternative plan, never just "no"
+
+---
+
+### Story 7: Security Vulnerability in Production API (Bank of America)
+
+**Situation:** During a routine Black Duck scan at Bank of America, we discovered a critical CVE (CVSS 9.8) in a Java library used by a production-facing payment API on OpenShift. The vulnerability allowed remote code execution. PCI-DSS compliance required remediation within 48 hours for critical findings.
+
+**Task:** I was responsible for coordinating the emergency patch across the DevOps pipeline, security team, and application team within the compliance window.
+
+**Action:**
+1. **Immediate mitigation**: Added a WAF rule to block the known exploit pattern while the patch was developed
+2. **Coordinated with dev team**: Identified the affected Maven dependency, found the patched version, and the dev team updated the POM and ran unit tests — all within 4 hours
+3. **Expedited pipeline**: Ran the patched build through our full CI/CD pipeline (SAST, SCA, DAST, staging tests) on an emergency fast-track
+4. **Change control**: Submitted an emergency change ticket with security justification — got approval within 2 hours
+5. **Deployed**: Rolled out the patched version to production via OpenShift rolling deployment with zero downtime
+6. **Verified**: Ran targeted scan confirming the CVE was resolved; documented the full timeline for PCI-DSS evidence
+
+**Result:**
+- **Remediated in 18 hours** (48-hour compliance window)
+- Zero downtime, zero data exposure
+- Implemented **automated dependency update alerts** — Slack notifications when new CVEs are published for any dependency in our Maven BOM
+- Created a **Security Incident Response Playbook** in Confluence that became the team standard
+- **Recognized by the InfoSec team** for the fastest critical CVE remediation in the quarter
+
+---
+
+### Quick Reference: Which Story to Use for Which Question
+
+| Interview Question | Best Story |
+|-------------------|------------|
+| "Tell me about a project issue you solved" | Story 1 (AKS Meltdown) or Story 2 (Build Agent Crisis) |
+| "Describe a time you were recognized" | Story 2 (VP recognition), Story 3 (CISO recognition), or Story 7 (InfoSec recognition) |
+| "Tell me about a difficult situation" | Story 5 (Cross-team conflict) or Story 6 (Unrealistic timelines) |
+| "Describe a time you failed / made a mistake" | Story 4 (Friday deployment) — frame as "caught the issue fast and made the right call" |
+| "How do you handle disagreements?" | Story 5 (ArgoCD adoption — listened, demoed, compromised, proved with data) |
+| "How do you handle pressure?" | Story 1 (23-min recovery under escalation) or Story 7 (18-hr CVE remediation) |
+| "Give an example of innovation" | Story 2 (Ephemeral VMSS agents) or Story 3 (Auto-generated compliance reports) |
+| "How do you push back on unrealistic expectations?" | Story 6 (Data + alternative plan + quick win) |
+| "Tell me about a compliance challenge" | Story 3 (HIPAA audit) or Story 7 (PCI-DSS CVE remediation) |
+| "Describe a time you improved a process" | Story 2 (Static -> ephemeral agents) or Story 5 (Manual -> GitOps deployments) |
 
 ---
 
