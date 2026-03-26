@@ -21,6 +21,7 @@
 - [Jira & Confluence Documentation](#jira--confluence-documentation)
 - [Agile & Team Collaboration](#agile--team-collaboration)
 - [Scenario-Based Questions](#scenario-based-questions)
+- [Job Requirements Mapping (Behavioral & Soft Skills)](#job-requirements-mapping-behavioral--soft-skills)
 - [My Experience Talking Points](#my-experience-talking-points)
 
 ---
@@ -1054,6 +1055,84 @@ WHERE NOT blocked_locks.granted;
 5. **Monitor**: Watch error rates, latency, DB connections closely during spike
 6. **Post-spike**: Review capacity planning, adjust HPA thresholds, consider CDN for static content
 7. **Root cause**: Was this expected (marketing campaign)? Or unexpected (bot traffic, DDoS)?
+
+---
+
+## Job Requirements Mapping (Behavioral & Soft Skills)
+
+This section maps directly to the non-technical job requirements. Prepare a STAR (Situation, Task, Action, Result) story for each.
+
+### "Good communication within an Agile environment with confidence to provide input during remote meetings"
+
+**My examples:**
+- **Navy Federal**: Participated in daily standups, sprint planning, and backlog grooming across distributed teams. Proactively raised concerns about AKS cluster capacity during planning, preventing a production outage before a major release
+- **Fineos**: Led DevOps toolchain assessment presentations to engineering leadership, recommending modern CI/CD and DevSecOps practices. Presented findings in remote Sprint Reviews to cross-functional stakeholders
+- **Bank of America**: Provided input during architecture review meetings on OpenShift migration strategy, advocating for container security standards that were adopted team-wide
+
+**How to answer:**
+> "In every role I've held, I've been an active participant in Agile ceremonies. At Navy Federal, I worked on a fully remote team and made it a point to speak up during daily standups and planning sessions. For example, during sprint planning I flagged that our AKS cluster was approaching resource limits before a major release. I presented the data from our Grafana dashboards, proposed a scaling plan, and we proactively expanded capacity — avoiding what would have been a production incident."
+
+### "Knowledge of software development processes and procedures to understand development team needs"
+
+**My examples:**
+- **Fineos**: Led platform engineering initiatives building Internal Developer Platforms (IDPs) — had to deeply understand developer workflows to design self-service onboarding, pipeline templates, and environment provisioning that reduced onboarding time by 50%
+- **Bank of America**: Worked directly with .NET/Java application teams to build reusable Jenkinsfile templates and standardize their SDLC — understood their build, test, deploy, and release processes end-to-end
+- **Navy Federal**: Supported thousands of developers by managing build agents and CI/CD pipelines — understood Maven/Gradle build processes, test frameworks, and deployment requirements to configure agents correctly
+
+**How to answer:**
+> "I don't just build pipelines in a vacuum — I work closely with development teams to understand their actual workflows. At Fineos, I built an Internal Developer Platform specifically by sitting with development teams, understanding their onboarding pain points, and designing self-service solutions. That reduced new app onboarding time by 50% because it addressed real developer needs, not just DevOps theory."
+
+### "Familiar with common development practices, Service Oriented environments, and Agile practices"
+
+**My examples:**
+- **Service-Oriented Architecture (SOA)**: Deployed and managed microservices architectures at Navy Federal (AKS), Fineos (OpenShift), and Bank of America (OpenShift). Understood service discovery, API contracts, inter-service communication, circuit breakers, and distributed tracing
+- **Development practices**: Git flow branching strategies, code review via pull requests (Bitbucket/GitHub), test-driven development support (Maven Surefire/Failsafe), feature flags, blue-green deployments
+- **Agile**: Scrum and Kanban in every role — sprint planning, daily standups, retrospectives, velocity tracking, burn-down charts, story pointing (Fibonacci)
+
+### "Generate new or unique solutions and embrace new ideas that help innovation and continuous improvement"
+
+**My examples:**
+- **Navy Federal**: Designed and built ephemeral VMSS-based build agents replacing static agents — innovative approach that improved CI/CD scalability and reduced build queue time by 50%
+- **Navy Federal**: Built fully automated release pipeline with auto-generated release notes from Git history, release gates, and Jira auto-updates — replaced a manual release process
+- **Navy Federal**: Created LLM-powered Pipeline Log Anomaly Detection tool (Python Gen AI) that auto-classifies CI/CD failures and generates remediation suggestions — novel use of Gen AI for DevOps
+- **Fineos**: Introduced ArgoCD GitOps workflow to replace manual OpenShift deployments — drove adoption across teams with drift detection and self-healing
+- **Bank of America**: Proposed and implemented reusable pipeline library patterns, reducing pipeline setup time and standardizing CI/CD across application teams
+
+**How to answer:**
+> "I actively look for ways to improve processes. At Navy Federal, I noticed our static build agents were a bottleneck, so I designed an ephemeral VMSS-based approach that dynamically scales agents. This cut build queue time by 50%. I also built an LLM-powered tool that analyzes pipeline failure logs and auto-classifies the root cause with remediation steps — that was a novel application of Gen AI that reduced our mean time to resolution."
+
+### "Excellent written and verbal communication skills; ability to communicate security and risk-related concepts to technical and nontechnical audiences"
+
+**My examples:**
+- **Written**: Maintained Confluence documentation (runbooks, ADRs, post-mortems, onboarding guides) at every role. Wrote clear Jira tickets with acceptance criteria, technical details, and business context
+- **Technical audience**: Presented DevSecOps pipeline security findings to engineering teams with specific CVE details, remediation code snippets, and priority rankings
+- **Non-technical audience**: Communicated AKS platform risks and upgrade impacts to management in business terms — "if we don't upgrade, we lose vendor security support in 60 days, exposing us to compliance gaps"
+- **Risk communication**: At Bank of America (PCI-DSS) and Fineos (HIPAA), regularly communicated security findings and compliance gaps to stakeholders in both technical and business language
+
+**How to answer:**
+> "I adjust my communication based on the audience. When presenting a security vulnerability to developers, I include the CVE, affected code, and a fix. When presenting the same issue to management, I focus on business risk — 'this vulnerability affects our payment API, and if exploited, could impact PCI-DSS compliance and result in regulatory penalties.' I've done this consistently at Bank of America and Fineos in regulated environments."
+
+### "Problem solving and analytical skills; ability to manage multiple projects under strict timelines"
+
+**My examples:**
+- **Navy Federal**: Simultaneously managed AKS cluster upgrades, build agent migration to VMSS, and ArgoCD implementation — all with different timelines and stakeholders. Used Jira epics to track each workstream and prioritized based on business impact
+- **Fineos**: Balanced platform engineering (IDP buildout), DevSecOps tooling integration, and day-to-day CI/CD support across multiple development teams
+- **Bank of America**: Managed concurrent application migrations from VMs to OpenShift containers while maintaining existing pipeline support for teams not yet migrated
+
+**How to answer:**
+> "At Navy Federal, I was managing three major initiatives simultaneously — AKS upgrades, build agent migration, and ArgoCD implementation. I used Jira epics to break each into sprint-sized stories, identified dependencies between workstreams, and communicated realistic timelines to stakeholders. When the AKS upgrade uncovered node failures, I triaged quickly, adjusted the sprint plan, and still delivered all three initiatives within the quarter."
+
+### "Work well with a team of developers, testers, business analysts, and scrum master; team player in an online environment"
+
+**My examples:**
+- **With developers**: Built self-service pipeline templates and IDPs so developers could deploy independently (Fineos). Paired with .NET/Java teams to troubleshoot build failures (Bank of America)
+- **With testers**: Configured dynamic parallel test stages in Jenkins for QA teams (Keysight). Set up test environment provisioning automation (Navy Federal)
+- **With business analysts**: Participated in requirements grooming, translated technical constraints into Jira story updates, ensured acceptance criteria were testable
+- **With scrum masters**: Provided accurate sprint velocity data, flagged blockers early in standups, participated in retrospectives with actionable improvement suggestions
+- **Remote/online**: Camera-on in meetings, responsive on Slack/Teams, follow-up with written summaries on Confluence, asynchronous communication across time zones
+
+**How to answer:**
+> "I've worked in fully remote, distributed teams for most of my career. At Navy Federal and Fineos, I collaborated daily with developers, testers, BAs, and scrum masters across multiple time zones. I keep my camera on, I'm responsive on Slack, and I always follow up meetings with Confluence notes so the whole team has a record. When a developer hits a pipeline issue, I pair with them to troubleshoot — I don't just hand them a ticket number."
 
 ---
 
